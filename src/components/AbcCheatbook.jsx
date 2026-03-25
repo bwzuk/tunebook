@@ -15,6 +15,7 @@ export default function AbcCheatbook({ tune, barCount = 8, className = '' }) {
         add_classes: true,
         staffwidth: 400,
         scale: 0.8,
+        foregroundColor: '#000000',
       });
     }
   }, [tune, barCount]);

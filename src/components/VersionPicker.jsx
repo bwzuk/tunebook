@@ -111,6 +111,7 @@ function VersionOption({ setting, tune, isSelected, isSaved, onSelect }) {
         responsive: 'resize',
         staffwidth: 300,
         scale: 0.7,
+        foregroundColor: '#000000',
       });
     }
   }, [setting, tune.name]);
