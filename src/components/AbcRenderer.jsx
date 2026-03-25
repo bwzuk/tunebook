@@ -3,30 +3,31 @@ import abcjs from 'abcjs';
 import { buildFullAbc } from '../utils/abcUtils';
 import './AbcRenderer.css';
 
-const SPEED_OPTIONS = [
-  { label: '0.5x', value: 0.5 },
-  { label: '0.75x', value: 0.75 },
-  { label: '1x', value: 1 },
-  { label: '1.25x', value: 1.25 },
-  { label: '1.5x', value: 1.5 },
+const TEMPO_OPTIONS = [
+  { label: 'Very Slow', value: 50 },
+  { label: 'Slow', value: 75 },
+  { label: 'Normal', value: 100 },
+  { label: 'Fast', value: 125 },
+  { label: 'Very Fast', value: 150 },
 ];
 
 export default function AbcRenderer({ tune, className = '' }) {
   const containerRef = useRef(null);
+  const audioControlRef = useRef(null);
   const synthControlRef = useRef(null);
-  const cursorControlRef = useRef(null);
+  const visualObjRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [audioSupported, setAudioSupported] = useState(true);
-  const [speed, setSpeed] = useState(1);
-  const [synthReady, setSynthReady] = useState(false);
+  const [tempo, setTempo] = useState(100);
+  const [isReady, setIsReady] = useState(false);
 
+  // Render the ABC notation
   useEffect(() => {
     if (!containerRef.current || !tune?.abc) return;
 
     const abc = buildFullAbc(tune);
 
-    // Render with explicit black coloring
     const visualObj = abcjs.renderAbc(containerRef.current, abc, {
       responsive: 'resize',
       add_classes: true,
@@ -34,91 +35,122 @@ export default function AbcRenderer({ tune, className = '' }) {
       foregroundColor: '#000000',
     });
 
-    // Check audio support
+    visualObjRef.current = visualObj[0];
+
     if (!abcjs.synth.supportsAudio()) {
       setAudioSupported(false);
-      return;
     }
 
-    // Create synth controller
-    const synthControl = new abcjs.synth.SynthController();
-    synthControlRef.current = synthControl;
+    // Reset state
+    setIsReady(false);
+    setIsPlaying(false);
+    if (synthControlRef.current) {
+      synthControlRef.current = null;
+    }
 
-    // Create cursor control for tracking playback
-    const cursorControl = {
-      onStart: () => setIsPlaying(true),
-      onFinished: () => setIsPlaying(false),
-      onBeat: () => {},
-    };
-    cursorControlRef.current = cursorControl;
-
-    // Initialize synth
-    synthControl.load('#audio-controls-' + tune.id, cursorControl, {
-      displayLoop: false,
-      displayRestart: false,
-      displayPlay: false,
-      displayProgress: false,
-      displayWarp: false,
-    });
-
-    // Set up the synth with the tune
-    const setupSynth = async () => {
-      try {
-        await synthControl.setTune(visualObj[0], false, {
-          soundFontUrl: 'https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/',
-          millisecondsPerMeasure: undefined, // Use tune's tempo
-        });
-        setSynthReady(true);
-      } catch (err) {
-        console.error('Synth setup error:', err);
-        setAudioSupported(false);
-      }
-    };
-
-    setupSynth();
-
-    // Cleanup
     return () => {
       if (synthControlRef.current) {
-        synthControlRef.current.pause();
+        try {
+          synthControlRef.current.pause();
+        } catch (e) {}
+        synthControlRef.current = null;
       }
-      setSynthReady(false);
       setIsPlaying(false);
+      setIsReady(false);
     };
   }, [tune]);
 
-  // Update tempo when speed changes
-  useEffect(() => {
-    if (synthControlRef.current && synthReady) {
-      synthControlRef.current.setWarp(100 / speed);
+  const initializeAudio = useCallback(async () => {
+    if (!visualObjRef.current || !audioControlRef.current) return false;
+
+    try {
+      const synthControl = new abcjs.synth.SynthController();
+      synthControlRef.current = synthControl;
+
+      // Load with the actual DOM element
+      synthControl.load(audioControlRef.current, null, {
+        displayLoop: false,
+        displayRestart: false,
+        displayPlay: false,
+        displayProgress: false,
+        displayWarp: true, // Need this for setWarp to work
+      });
+
+      await synthControl.setTune(visualObjRef.current, true, {
+        soundFontUrl: 'https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/',
+      });
+
+      setIsReady(true);
+      return true;
+    } catch (err) {
+      console.error('Audio init error:', err);
+      setAudioSupported(false);
+      return false;
     }
-  }, [speed, synthReady]);
+  }, []);
 
   const handlePlay = useCallback(async () => {
-    if (!synthControlRef.current || !synthReady) return;
+    if (!audioSupported) return;
 
     if (isPlaying) {
-      synthControlRef.current.pause();
+      if (synthControlRef.current) {
+        synthControlRef.current.pause();
+      }
       setIsPlaying(false);
-    } else {
-      setIsLoading(true);
-      try {
-        // Prime the audio (needed for first play)
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Initialize on first play
+      if (!isReady) {
+        const success = await initializeAudio();
+        if (!success) {
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      if (synthControlRef.current) {
+        // Set tempo before playing
+        synthControlRef.current.setWarp(tempo);
         await synthControlRef.current.play();
         setIsPlaying(true);
-      } catch (err) {
-        console.error('Playback error:', err);
+
+        // Watch for end
+        const checkEnded = setInterval(() => {
+          if (synthControlRef.current && !synthControlRef.current.isRunning) {
+            setIsPlaying(false);
+            clearInterval(checkEnded);
+          }
+        }, 200);
       }
-      setIsLoading(false);
+    } catch (err) {
+      console.error('Playback error:', err);
     }
-  }, [isPlaying, synthReady]);
+
+    setIsLoading(false);
+  }, [isPlaying, audioSupported, isReady, initializeAudio, tempo]);
+
+  const handleTempoChange = useCallback((newTempo) => {
+    setTempo(newTempo);
+    // Apply immediately if ready
+    if (synthControlRef.current && isReady) {
+      try {
+        synthControlRef.current.setWarp(newTempo);
+      } catch (e) {
+        // Ignore errors if not fully ready
+      }
+    }
+  }, [isReady]);
 
   const handleStop = useCallback(() => {
     if (synthControlRef.current) {
       synthControlRef.current.pause();
       synthControlRef.current.restart();
-      setIsPlaying(false);
     }
+    setIsPlaying(false);
   }, []);
 
   if (!tune?.abc) {
@@ -127,51 +159,47 @@ export default function AbcRenderer({ tune, className = '' }) {
 
   return (
     <div className={`abc-renderer ${className}`}>
+      {/* Hidden audio control element for SynthController */}
+      <div ref={audioControlRef} className="abc-audio-control" />
+
       <div className="abc-controls">
         <button
-          className={`abc-play-btn ${isPlaying ? 'playing' : ''}`}
+          className={`abc-btn abc-play-btn ${isPlaying ? 'playing' : ''}`}
           onClick={handlePlay}
-          disabled={isLoading || !audioSupported || !synthReady}
-          title={!audioSupported ? 'Audio not supported in this browser' : ''}
+          disabled={isLoading || !audioSupported}
         >
           {isLoading ? (
-            <>Loading...</>
+            <span className="abc-btn-content">
+              <span className="abc-spinner"></span>
+              Loading
+            </span>
           ) : isPlaying ? (
-            <>
+            <span className="abc-btn-content">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <rect x="6" y="4" width="4" height="16" />
                 <rect x="14" y="4" width="4" height="16" />
               </svg>
-              Pause
-            </>
+              Stop
+            </span>
           ) : (
-            <>
+            <span className="abc-btn-content">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="5,3 19,12 5,21" />
               </svg>
               Play
-            </>
+            </span>
           )}
         </button>
 
-        {isPlaying && (
-          <button className="abc-stop-btn" onClick={handleStop} title="Stop and restart">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <rect x="4" y="4" width="16" height="16" />
-            </svg>
-            Stop
-          </button>
-        )}
-
-        <div className="abc-speed-control">
-          <label htmlFor={`speed-${tune.id}`}>Speed:</label>
+        <div className="abc-tempo-control">
+          <label htmlFor="tempo-select">Tempo</label>
           <select
-            id={`speed-${tune.id}`}
-            value={speed}
-            onChange={(e) => setSpeed(parseFloat(e.target.value))}
-            className="abc-speed-select"
+            id="tempo-select"
+            value={tempo}
+            onChange={(e) => handleTempoChange(parseInt(e.target.value))}
+            className="abc-tempo-select"
           >
-            {SPEED_OPTIONS.map((opt) => (
+            {TEMPO_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
@@ -183,9 +211,6 @@ export default function AbcRenderer({ tune, className = '' }) {
           <span className="abc-audio-error">Audio not supported</span>
         )}
       </div>
-
-      {/* Hidden audio controls container for abcjs */}
-      <div id={`audio-controls-${tune.id}`} style={{ display: 'none' }} />
 
       <div ref={containerRef} className="abc-notation" />
     </div>

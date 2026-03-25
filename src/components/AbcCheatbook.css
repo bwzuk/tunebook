@@ -1,49 +1,52 @@
 .abc-cheatbook {
-  border: 1px solid var(--border-color, #333);
-  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
   overflow: hidden;
+  background: var(--bg-secondary);
+  transition: all 0.2s;
+}
+
+.abc-cheatbook:hover {
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .abc-cheatbook-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
-  background: var(--bg-secondary, #1a1a1a);
+  padding: 0.75rem 1rem;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .abc-cheatbook-name {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .abc-cheatbook-key {
-  font-size: 12px;
-  color: var(--text-secondary, #888);
-  background: var(--bg-primary, #242424);
-  padding: 2px 8px;
-  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: var(--primary-light);
+  padding: 0.125rem 0.5rem;
+  border-radius: 1rem;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
 }
 
 .abc-cheatbook-notation {
   overflow: hidden;
-  background: #fff;
-  padding: 8px 12px;
+  background: #ffffff;
+  padding: 0.75rem 1rem;
 }
 
 .abc-cheatbook-notation svg {
   max-width: 100%;
   height: auto;
-}
-
-@media (prefers-color-scheme: light) {
-  .abc-cheatbook-header {
-    background: #f0f0f0;
-  }
-  .abc-cheatbook-key {
-    background: #fff;
-  }
-  .abc-cheatbook {
-    border-color: #ddd;
-  }
 }

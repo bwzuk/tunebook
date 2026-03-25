@@ -7,7 +7,10 @@
 export function extractFirstBars(abc, barCount = 8) {
   if (!abc) return '';
 
-  const lines = abc.split('\n');
+  // First, normalize the ABC
+  const normalizedAbc = normalizeAbc(abc);
+
+  const lines = normalizedAbc.split('\n');
   const headerLines = [];
   const bodyLines = [];
 
@@ -27,20 +30,12 @@ export function extractFirstBars(abc, barCount = 8) {
   // Join body and count bars
   const body = bodyLines.join(' ');
 
-  // Count bar lines (| or |] or || or |:, etc.)
-  // We want to keep barCount measures
+  // Count bar lines - we want barCount complete measures
   let barsSeen = 0;
   let cutIndex = body.length;
 
   for (let i = 0; i < body.length; i++) {
     if (body[i] === '|') {
-      // Skip special bar endings like |] |: || :|
-      if (body[i + 1] === ']' || body[i + 1] === ':' || body[i + 1] === '|') {
-        // Don't count these as bar starts
-        if (body[i + 1] === '|' || body[i + 1] === ':') {
-          i++; // Skip the next character too
-        }
-      }
       barsSeen++;
       if (barsSeen >= barCount) {
         cutIndex = i + 1;
@@ -65,50 +60,70 @@ export function extractFirstBars(abc, barCount = 8) {
 }
 
 /**
- * Normalize ABC for consistent rendering
- * @param {string} abc - ABC notation
+ * Normalize ABC notation from thesession.org
+ *
+ * TheSession.org uses `!` as a line break marker. This is NOT standard ABC.
+ * Simply replace all `!` with newlines.
+ *
+ * @param {string} abc - Raw ABC from thesession.org
  * @returns {string} - Normalized ABC
  */
-export function normalizeAbc(abc) {
+function normalizeAbc(abc) {
   if (!abc) return '';
 
-  // Ensure there's a proper header
-  let normalized = abc.trim();
+  // Replace all ! with newlines, then clean up
+  let result = abc.split('!').join('\n');
 
-  // Add X: if missing
-  if (!normalized.includes('X:')) {
-    normalized = 'X:1\n' + normalized;
-  }
+  // Clean up multiple newlines and whitespace
+  result = result.replace(/\n+/g, '\n');
+  result = result.replace(/\n\s+/g, '\n');
+  result = result.replace(/\s+\n/g, '\n');
 
-  return normalized;
+  return result.trim();
 }
 
 /**
  * Build complete ABC string with tune metadata
- * @param {object} tune - Tune object with name, key, meter, abc
+ *
+ * The ABC from thesession.org typically already includes M:, L:, K: headers
+ * and the tune body with repeat markers. We just need to add X: and T: if missing,
+ * and normalize the line break markers.
+ *
+ * @param {object} tune - Tune object with name, type, key, meter, abc
  * @returns {string} - Complete ABC notation
  */
 export function buildFullAbc(tune) {
-  const { name, key, meter, abc } = tune;
+  const { name, abc } = tune;
 
-  // Check if abc already has proper headers
-  if (abc.includes('X:') && abc.includes('T:') && abc.includes('K:')) {
-    return abc;
+  if (!abc) return '';
+
+  // Normalize the ABC (convert ! line breaks to newlines)
+  const normalizedAbc = normalizeAbc(abc);
+
+  // Check if ABC already has an X: header - if so, it's complete
+  if (normalizedAbc.startsWith('X:') || normalizedAbc.includes('\nX:')) {
+    return normalizedAbc;
   }
 
+  // Check if ABC already has any headers (M:, L:, K:, etc.)
+  // The session.org ABC typically starts with headers like M:4/4
+  const hasHeaders = /^[A-Z]:/m.test(normalizedAbc);
+
+  if (hasHeaders) {
+    // ABC has headers but no X: - just prepend X: and T:
+    return `X:1\nT:${name || 'Untitled'}\n${normalizedAbc}`;
+  }
+
+  // ABC is just notes with no headers at all - add full headers
+  // This shouldn't happen with thesession.org data but handle it anyway
+  const { key, meter } = tune;
   const headers = [
     'X:1',
     `T:${name || 'Untitled'}`,
     `M:${meter || '4/4'}`,
+    `L:1/8`,
     `K:${key || 'G'}`,
   ];
 
-  // Extract just the notes part from abc
-  const lines = abc.split('\n');
-  const bodyLines = lines.filter(line => {
-    const trimmed = line.trim();
-    return trimmed && !/^[XTMKLQCRS]:/.test(trimmed);
-  });
-
-  return [...headers, ...bodyLines].join('\n');
+  return headers.join('\n') + '\n' + normalizedAbc;
 }

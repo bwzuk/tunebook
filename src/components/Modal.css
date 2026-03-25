@@ -4,12 +4,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: flex-end;
   justify-content: center;
   z-index: 200;
   animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 @keyframes fadeIn {
@@ -18,14 +20,16 @@
 }
 
 .modal-content {
-  background: var(--bg-primary, #242424);
-  border-radius: 16px 16px 0 0;
+  background: var(--bg-primary);
+  border-radius: 1rem 1rem 0 0;
   width: 100%;
   max-width: 600px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
   animation: slideUp 0.3s ease;
+  border: 1px solid var(--border-color);
+  border-bottom: none;
 }
 
 @keyframes slideUp {
@@ -37,60 +41,62 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
-  border-bottom: 1px solid var(--border-color, #333);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: 1rem 1rem 0 0;
 }
 
 .modal-title {
   margin: 0;
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .modal-close {
-  width: 44px;
-  height: 44px;
+  width: 2.5rem;
+  height: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
+  background: transparent;
   border: none;
-  color: inherit;
+  color: var(--text-secondary);
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
 }
 
 .modal-close:hover {
-  background: var(--bg-secondary, #1a1a1a);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .modal-close svg {
-  width: 24px;
-  height: 24px;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .modal-body {
-  padding: 16px;
+  padding: 1.25rem;
   overflow-y: auto;
   flex: 1;
-}
-
-@media (prefers-color-scheme: light) {
-  .modal-content {
-    background: #fff;
-  }
-  .modal-header {
-    border-bottom-color: #ddd;
-  }
 }
 
 @media (min-width: 600px) {
   .modal-overlay {
     align-items: center;
+    padding: 1.5rem;
   }
+
   .modal-content {
-    border-radius: 16px;
+    border-radius: 1rem;
     max-height: 80vh;
-    margin: 20px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .modal-header {
+    border-radius: 1rem 1rem 0 0;
   }
 }

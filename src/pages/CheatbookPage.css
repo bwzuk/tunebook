@@ -1,5 +1,5 @@
 .cheatbook-page {
-  padding-bottom: 20px;
+  padding-bottom: 1.5rem;
 }
 
 .page-header {
@@ -7,54 +7,50 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.page-title {
-  font-size: 24px;
-  margin: 0;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .set-selector {
-  padding: 10px 16px;
-  font-size: 14px;
-  border: 1px solid var(--border-color, #333);
-  border-radius: 8px;
-  background: var(--bg-secondary, #1a1a1a);
-  color: inherit;
-  min-height: 44px;
-  min-width: 150px;
+  padding: 0.625rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  min-height: 2.75rem;
+  min-width: 10rem;
   cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.set-selector:hover {
+  border-color: var(--border-light);
 }
 
 .set-selector:focus {
   outline: none;
-  border-color: var(--primary-color, #646cff);
+  border-color: var(--primary-color);
 }
 
 .cheatbook-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
 }
 
-.loading,
 .empty-cheatbook {
   text-align: center;
-  padding: 40px 20px;
-  color: var(--text-secondary, #888);
+  padding: 3rem 1.5rem;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border-radius: 0.75rem;
+  border: 1px dashed var(--border-color);
 }
 
 .empty-cheatbook p {
-  margin: 8px 0;
-}
-
-@media (prefers-color-scheme: light) {
-  .set-selector {
-    background: #fff;
-    border-color: #ddd;
-  }
+  margin: 0.5rem 0;
 }
 
 @media print {
@@ -69,7 +65,7 @@
 
   .cheatbook-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 0.75rem;
   }
 
   .abc-cheatbook {

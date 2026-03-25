@@ -1,14 +1,23 @@
 .layout {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  background: var(--bg-primary);
 }
 
 .main-content {
   flex: 1;
-  padding: 16px;
-  padding-bottom: calc(72px + env(safe-area-inset-bottom));
-  max-width: 800px;
+  padding: 1.25rem;
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  max-width: 900px;
   margin: 0 auto;
   width: 100%;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding: 2rem;
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
 }

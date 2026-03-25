@@ -1,16 +1,24 @@
 .tune-card {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  background: var(--bg-secondary, #1a1a1a);
-  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
   cursor: pointer;
-  transition: background-color 0.2s;
-  min-height: 44px;
+  transition: all 0.2s ease;
+  min-height: 4rem;
 }
 
 .tune-card:hover {
-  background: var(--bg-hover, #2a2a2a);
+  background: var(--bg-tertiary);
+  border-color: var(--border-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.tune-card:active {
+  transform: translateY(0);
 }
 
 .tune-card-content {
@@ -21,71 +29,69 @@
 .tune-card-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
 }
 
 .tune-card-name {
   margin: 0;
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--text-primary);
 }
 
 .tune-card-type {
-  font-size: 12px;
-  color: var(--text-secondary, #888);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--primary-color);
+  background: var(--primary-light);
+  padding: 0.125rem 0.5rem;
+  border-radius: 1rem;
   text-transform: capitalize;
   flex-shrink: 0;
 }
 
 .tune-card-meta {
   display: flex;
-  gap: 12px;
-  font-size: 13px;
-  color: var(--text-secondary, #888);
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
 }
 
 .tune-card-key {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .tune-card-actions {
   display: flex;
-  gap: 8px;
-  margin-left: 12px;
+  gap: 0.5rem;
+  margin-left: 1rem;
 }
 
 .tune-card-actions button {
-  width: 44px;
-  height: 44px;
+  width: 2.5rem;
+  height: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: none;
-  color: var(--text-secondary, #888);
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
 }
 
 .tune-card-actions button:hover {
-  background: var(--bg-primary, #242424);
-  color: var(--primary-color, #646cff);
+  background: var(--bg-tertiary);
+  color: var(--danger-color);
+  border-color: var(--danger-color);
 }
 
 .tune-card-actions button svg {
-  width: 20px;
-  height: 20px;
-}
-
-@media (prefers-color-scheme: light) {
-  .tune-card {
-    background: #f5f5f5;
-  }
-  .tune-card:hover {
-    background: #eee;
-  }
+  width: 1.125rem;
+  height: 1.125rem;
 }
