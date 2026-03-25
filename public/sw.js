@@ -1,7 +1,5 @@
-const CACHE_NAME = 'tunebook-v2';
+const CACHE_NAME = 'tunebook-v4';
 const urlsToCache = [
-  '/',
-  '/index.html',
   '/manifest.json',
   '/icon-192.svg',
   '/icon-512.svg'
@@ -36,7 +34,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - network first for API calls, cache first for assets
+// Fetch event
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
@@ -45,12 +43,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first for thesession.org API calls (we need fresh data)
+  // Network-first for thesession.org API calls
   if (url.hostname === 'thesession.org') {
     event.respondWith(
       fetch(event.request)
         .catch(() => {
-          // Return a simple error response if offline
           return new Response(JSON.stringify({ error: 'Offline' }), {
             status: 503,
             headers: { 'Content-Type': 'application/json' }
@@ -60,7 +57,35 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for app assets
+  // Network-first for HTML, JS, and CSS (ensures fresh app code)
+  if (event.request.destination === 'document' ||
+      event.request.destination === 'script' ||
+      event.request.destination === 'style' ||
+      url.pathname === '/' ||
+      url.pathname.endsWith('.html') ||
+      url.pathname.endsWith('.js') ||
+      url.pathname.endsWith('.css')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Cache the fresh response
+          if (response.ok) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache if offline
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // Cache-first for other assets (icons, fonts, etc.)
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -69,18 +94,14 @@ self.addEventListener('fetch', (event) => {
         }
 
         return fetch(event.request).then((response) => {
-          // Don't cache non-successful responses
-          if (!response || response.status !== 200 || response.type !== 'basic') {
+          if (!response || response.status !== 200) {
             return response;
           }
 
-          // Clone the response
           const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
 
           return response;
         });
