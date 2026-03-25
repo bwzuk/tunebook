@@ -80,17 +80,15 @@
 .version-option-preview {
   overflow: hidden;
   max-height: 80px;
+  background: #fff;
+  border-radius: 4px;
+  padding: 8px;
+  margin-top: 8px;
 }
 
 .version-option-preview svg {
   max-width: 100%;
   height: auto;
-}
-
-@media (prefers-color-scheme: dark) {
-  .version-option-preview svg {
-    filter: invert(1);
-  }
 }
 
 .version-picker-actions {

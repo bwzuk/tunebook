@@ -1,6 +1,9 @@
 .abc-renderer {
   width: 100%;
   overflow-x: auto;
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
 }
 
 .abc-renderer svg {
@@ -14,9 +17,46 @@
   color: var(--text-secondary, #888);
 }
 
-/* Override abcjs default colors for dark mode */
-@media (prefers-color-scheme: dark) {
-  .abc-renderer svg {
-    filter: invert(1);
-  }
+.abc-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.abc-play-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--primary-color, #646cff);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  min-height: 36px;
+}
+
+.abc-play-btn:hover:not(:disabled) {
+  background: #535bf2;
+}
+
+.abc-play-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.abc-play-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.abc-play-btn.playing {
+  background: #ff6b6b;
+}
+
+.abc-play-btn.playing:hover {
+  background: #ff5252;
 }
