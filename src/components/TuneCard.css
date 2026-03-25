@@ -1,0 +1,91 @@
+.tune-card {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-secondary, #1a1a1a);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-height: 44px;
+}
+
+.tune-card:hover {
+  background: var(--bg-hover, #2a2a2a);
+}
+
+.tune-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.tune-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.tune-card-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tune-card-type {
+  font-size: 12px;
+  color: var(--text-secondary, #888);
+  text-transform: capitalize;
+  flex-shrink: 0;
+}
+
+.tune-card-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-secondary, #888);
+}
+
+.tune-card-key {
+  font-weight: 500;
+}
+
+.tune-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 12px;
+}
+
+.tune-card-actions button {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-secondary, #888);
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.tune-card-actions button:hover {
+  background: var(--bg-primary, #242424);
+  color: var(--primary-color, #646cff);
+}
+
+.tune-card-actions button svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (prefers-color-scheme: light) {
+  .tune-card {
+    background: #f5f5f5;
+  }
+  .tune-card:hover {
+    background: #eee;
+  }
+}

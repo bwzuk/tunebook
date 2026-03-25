@@ -1,0 +1,122 @@
+.version-picker-loading,
+.version-picker-error {
+  padding: 20px;
+  text-align: center;
+}
+
+.version-picker-error {
+  color: #ff6b6b;
+}
+
+.version-picker-info {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.version-picker-type {
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+.version-picker-count {
+  color: var(--text-secondary, #888);
+}
+
+.version-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.version-option {
+  border: 2px solid var(--border-color, #333);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.version-option:hover {
+  border-color: var(--primary-color, #646cff);
+}
+
+.version-option.selected {
+  border-color: var(--primary-color, #646cff);
+  background: rgba(100, 108, 255, 0.1);
+}
+
+.version-option.saved {
+  opacity: 0.7;
+}
+
+.version-option-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.version-option-key {
+  font-weight: 600;
+}
+
+.version-option-submitter {
+  color: var(--text-secondary, #888);
+  font-size: 13px;
+}
+
+.version-option-saved {
+  margin-left: auto;
+  font-size: 12px;
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.version-option-preview {
+  overflow: hidden;
+  max-height: 80px;
+}
+
+.version-option-preview svg {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .version-option-preview svg {
+    filter: invert(1);
+  }
+}
+
+.version-picker-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color, #333);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px 24px;
+  background: var(--primary-color, #646cff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #535bf2;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

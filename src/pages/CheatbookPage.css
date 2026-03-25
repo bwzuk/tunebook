@@ -1,0 +1,79 @@
+.cheatbook-page {
+  padding-bottom: 20px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 24px;
+  margin: 0;
+}
+
+.set-selector {
+  padding: 10px 16px;
+  font-size: 14px;
+  border: 1px solid var(--border-color, #333);
+  border-radius: 8px;
+  background: var(--bg-secondary, #1a1a1a);
+  color: inherit;
+  min-height: 44px;
+  min-width: 150px;
+  cursor: pointer;
+}
+
+.set-selector:focus {
+  outline: none;
+  border-color: var(--primary-color, #646cff);
+}
+
+.cheatbook-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.loading,
+.empty-cheatbook {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary, #888);
+}
+
+.empty-cheatbook p {
+  margin: 8px 0;
+}
+
+@media (prefers-color-scheme: light) {
+  .set-selector {
+    background: #fff;
+    border-color: #ddd;
+  }
+}
+
+@media print {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .set-selector {
+    display: none;
+  }
+
+  .cheatbook-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .abc-cheatbook {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

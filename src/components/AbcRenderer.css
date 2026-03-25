@@ -1,0 +1,22 @@
+.abc-renderer {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.abc-renderer svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.abc-empty {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-secondary, #888);
+}
+
+/* Override abcjs default colors for dark mode */
+@media (prefers-color-scheme: dark) {
+  .abc-renderer svg {
+    filter: invert(1);
+  }
+}

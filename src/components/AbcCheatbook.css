@@ -1,0 +1,51 @@
+.abc-cheatbook {
+  border: 1px solid var(--border-color, #333);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--bg-secondary, #1a1a1a);
+}
+
+.abc-cheatbook-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.abc-cheatbook-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.abc-cheatbook-key {
+  font-size: 12px;
+  color: var(--text-secondary, #888);
+  background: var(--bg-primary, #242424);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.abc-cheatbook-notation {
+  overflow: hidden;
+}
+
+.abc-cheatbook-notation svg {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .abc-cheatbook-notation svg {
+    filter: invert(1);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .abc-cheatbook {
+    background: #f9f9f9;
+    border-color: #ddd;
+  }
+  .abc-cheatbook-key {
+    background: #fff;
+  }
+}
