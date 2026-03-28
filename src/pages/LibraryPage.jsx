@@ -5,7 +5,6 @@ import TuneCard from '../components/TuneCard';
 import TagFilter from '../components/TagFilter';
 import abcjs from 'abcjs';
 import { buildFullAbc } from '../utils/abcUtils';
-import useAudioPlayback from '../hooks/useAudioPlayback';
 import './LibraryPage.css';
 
 const TUNE_TYPES = ['all', 'jig', 'reel', 'hornpipe', 'polka', 'slip jig', 'waltz', 'slide'];
@@ -24,7 +23,7 @@ const PRACTICE_FILTERS = [
 ];
 
 export default function LibraryPage() {
-  const { tunes, allTags, loading, error, removeTune, recordPractice, refresh } = useLibrary();
+  const { tunes, allTags, loading, error, removeTune, recordPractice } = useLibrary();
   const [typeFilter, setTypeFilter] = useState('all');
   const [tagFilter, setTagFilter] = useState(null);
   const [practiceFilter, setPracticeFilter] = useState('all');
@@ -62,13 +61,12 @@ export default function LibraryPage() {
       if (sortBy === 'name') {
         return a.name.localeCompare(b.name);
       } else if (sortBy === 'lastPracticed') {
-        // Put never-practiced at the end
         if (!a.lastPracticed && !b.lastPracticed) return 0;
         if (!a.lastPracticed) return 1;
         if (!b.lastPracticed) return -1;
         return b.lastPracticed - a.lastPracticed;
       }
-      return b.addedAt - a.addedAt; // default: addedAt desc
+      return b.addedAt - a.addedAt;
     });
 
     return result;
@@ -174,7 +172,7 @@ export default function LibraryPage() {
             <TuneCardWithActions
               key={tune.id}
               tune={tune}
-              isPlaying={playingTuneId === tune.id}
+              isCurrentlyPlaying={playingTuneId === tune.id}
               onPlayStateChange={handlePlayStateChange}
               onNavigate={() => navigate(`/library/${encodeURIComponent(tune.id)}`)}
               onDelete={(e) => handleDelete(e, tune.id)}
@@ -191,52 +189,76 @@ export default function LibraryPage() {
   );
 }
 
-function TuneCardWithActions({ tune, isPlaying, onPlayStateChange, onNavigate, onDelete, onPractice }) {
-  const {
-    audioControlRef,
-    isPlaying: localIsPlaying,
-    isLoading,
-    audioSupported,
-    setVisualObj,
-    play,
-    stop,
-  } = useAudioPlayback();
+function TuneCardWithActions({ tune, isCurrentlyPlaying, onPlayStateChange, onNavigate, onDelete, onPractice }) {
+  const synthRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Notify parent of play state changes
+  // Stop if another tune starts
   useEffect(() => {
-    onPlayStateChange(tune.id, localIsPlaying);
-  }, [localIsPlaying, tune.id, onPlayStateChange]);
-
-  // Stop if another tune starts playing
-  useEffect(() => {
-    if (!isPlaying && localIsPlaying) {
-      stop();
+    if (!isCurrentlyPlaying && isPlaying) {
+      if (synthRef.current) {
+        synthRef.current.stop();
+      }
+      setIsPlaying(false);
     }
-  }, [isPlaying, localIsPlaying, stop]);
+  }, [isCurrentlyPlaying, isPlaying]);
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (synthRef.current) {
+        synthRef.current.stop();
+      }
+    };
+  }, []);
 
   const handlePlay = async (e) => {
     e.stopPropagation();
 
-    if (localIsPlaying) {
-      stop();
+    if (isPlaying) {
+      if (synthRef.current) {
+        synthRef.current.stop();
+      }
+      setIsPlaying(false);
+      onPlayStateChange(tune.id, false);
       return;
     }
 
-    // Create hidden element for ABC rendering
-    const tempContainer = document.createElement('div');
-    tempContainer.style.display = 'none';
-    document.body.appendChild(tempContainer);
+    setIsLoading(true);
 
-    const fullAbc = buildFullAbc(tune);
-    const visualObj = abcjs.renderAbc(tempContainer, fullAbc, {
-      responsive: 'resize',
-    });
+    try {
+      const fullAbc = buildFullAbc(tune);
+      const visualObj = abcjs.renderAbc('*', fullAbc)[0];
 
-    setVisualObj(visualObj[0]);
-    document.body.removeChild(tempContainer);
+      if (!synthRef.current) {
+        synthRef.current = new abcjs.synth.CreateSynth();
+      }
 
-    await new Promise(resolve => setTimeout(resolve, 50));
-    play();
+      await synthRef.current.init({
+        visualObj: visualObj,
+        options: {
+          soundFontUrl: 'https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/',
+        },
+      });
+
+      await synthRef.current.prime();
+      synthRef.current.start();
+      setIsPlaying(true);
+      onPlayStateChange(tune.id, true);
+
+      const checkEnded = setInterval(() => {
+        if (synthRef.current && !synthRef.current.isRunning) {
+          setIsPlaying(false);
+          onPlayStateChange(tune.id, false);
+          clearInterval(checkEnded);
+        }
+      }, 200);
+    } catch (err) {
+      console.error('Playback error:', err);
+    }
+
+    setIsLoading(false);
   };
 
   const needsPractice = !tune.lastPracticed ||
@@ -259,18 +281,15 @@ function TuneCardWithActions({ tune, isPlaying, onPlayStateChange, onNavigate, o
       tags={tune.tags}
       actions={
         <>
-          {/* Hidden audio control */}
-          <div ref={audioControlRef} style={{ display: 'none' }} />
-
           <button
             onClick={handlePlay}
-            disabled={isLoading || !audioSupported}
-            className={`tune-action-btn play ${localIsPlaying ? 'playing' : ''}`}
-            title={localIsPlaying ? 'Stop' : 'Play'}
+            disabled={isLoading}
+            className={`tune-action-btn play ${isPlaying ? 'playing' : ''}`}
+            title={isPlaying ? 'Stop' : 'Play'}
           >
             {isLoading ? (
               <span className="action-spinner"></span>
-            ) : localIsPlaying ? (
+            ) : isPlaying ? (
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <rect x="6" y="4" width="4" height="16" />
                 <rect x="14" y="4" width="4" height="16" />

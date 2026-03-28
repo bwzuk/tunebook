@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import abcjs from 'abcjs';
 import Modal from './Modal';
 import { getTuneDetails } from '../api/theSession';
 import { buildFullAbc } from '../utils/abcUtils';
 import { useLibrary } from '../contexts/LibraryContext';
-import useAudioPlayback from '../hooks/useAudioPlayback';
 import './VersionPicker.css';
 
 export default function VersionPicker({ tune, isOpen, onClose }) {
@@ -12,7 +11,6 @@ export default function VersionPicker({ tune, isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedSetting, setSelectedSetting] = useState(null);
-  const [playingSettingId, setPlayingSettingId] = useState(null);
   const { addTune, hasTune } = useLibrary();
 
   useEffect(() => {
@@ -20,7 +18,6 @@ export default function VersionPicker({ tune, isOpen, onClose }) {
       setLoading(true);
       setError(null);
       setSelectedSetting(null);
-      setPlayingSettingId(null);
       getTuneDetails(tune.id)
         .then((data) => {
           setDetails(data);
@@ -32,13 +29,6 @@ export default function VersionPicker({ tune, isOpen, onClose }) {
         .finally(() => setLoading(false));
     }
   }, [isOpen, tune]);
-
-  // Stop any playing audio when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setPlayingSettingId(null);
-    }
-  }, [isOpen]);
 
   const handleSave = async () => {
     if (!selectedSetting || !details) return;
@@ -60,10 +50,6 @@ export default function VersionPicker({ tune, isOpen, onClose }) {
       onClose();
     }
   };
-
-  const handlePlayStateChange = useCallback((settingId, isPlaying) => {
-    setPlayingSettingId(isPlaying ? settingId : null);
-  }, []);
 
   const alreadySaved = selectedSetting && details
     ? hasTune(`${details.id}_${selectedSetting.id}`)
@@ -88,8 +74,6 @@ export default function VersionPicker({ tune, isOpen, onClose }) {
                 tune={details}
                 isSelected={selectedSetting?.id === setting.id}
                 isSaved={hasTune(`${details.id}_${setting.id}`)}
-                isPlaying={playingSettingId === setting.id}
-                onPlayStateChange={handlePlayStateChange}
                 onSelect={() => setSelectedSetting(setting)}
               />
             ))}
@@ -110,30 +94,13 @@ export default function VersionPicker({ tune, isOpen, onClose }) {
   );
 }
 
-function VersionOption({ setting, tune, isSelected, isSaved, isPlaying, onPlayStateChange, onSelect }) {
+function VersionOption({ setting, tune, isSelected, isSaved, onSelect }) {
   const previewRef = useRef(null);
-  const {
-    audioControlRef,
-    isPlaying: localIsPlaying,
-    isLoading,
-    audioSupported,
-    setVisualObj,
-    play,
-    stop,
-  } = useAudioPlayback();
+  const synthRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Notify parent of play state changes
-  useEffect(() => {
-    onPlayStateChange(setting.id, localIsPlaying);
-  }, [localIsPlaying, setting.id, onPlayStateChange]);
-
-  // Stop playing when another version starts
-  useEffect(() => {
-    if (isPlaying === false && localIsPlaying) {
-      stop();
-    }
-  }, [isPlaying, localIsPlaying, stop]);
-
+  // Render preview
   useEffect(() => {
     if (previewRef.current && setting.abc) {
       const abc = buildFullAbc({
@@ -142,49 +109,76 @@ function VersionOption({ setting, tune, isSelected, isSaved, isPlaying, onPlaySt
         meter: setting.meter,
         abc: setting.abc,
       });
-      // Just render first line for preview
       const firstLine = abc.split('\n').slice(0, 6).join('\n');
-      const visualObj = abcjs.renderAbc(previewRef.current, firstLine, {
+      abcjs.renderAbc(previewRef.current, firstLine, {
         responsive: 'resize',
         staffwidth: 300,
         scale: 0.7,
         foregroundColor: '#000000',
       });
-      // Store the visual object for potential playback
-      // For playback, we need the full ABC, so render it separately
     }
   }, [setting, tune.name]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (synthRef.current) {
+        synthRef.current.stop();
+      }
+    };
+  }, []);
 
   const handlePlay = async (e) => {
     e.stopPropagation();
 
-    if (localIsPlaying) {
-      stop();
+    if (isPlaying) {
+      if (synthRef.current) {
+        synthRef.current.stop();
+      }
+      setIsPlaying(false);
       return;
     }
 
-    // Create a hidden element for full ABC rendering for audio
-    const tempContainer = document.createElement('div');
-    tempContainer.style.display = 'none';
-    document.body.appendChild(tempContainer);
+    setIsLoading(true);
 
-    const fullAbc = buildFullAbc({
-      name: tune.name,
-      key: setting.key,
-      meter: setting.meter,
-      abc: setting.abc,
-    });
+    try {
+      const fullAbc = buildFullAbc({
+        name: tune.name,
+        key: setting.key,
+        meter: setting.meter,
+        abc: setting.abc,
+      });
 
-    const visualObj = abcjs.renderAbc(tempContainer, fullAbc, {
-      responsive: 'resize',
-    });
+      // Use CreateSynth directly instead of SynthController
+      const visualObj = abcjs.renderAbc('*', fullAbc)[0];
 
-    setVisualObj(visualObj[0]);
-    document.body.removeChild(tempContainer);
+      if (!synthRef.current) {
+        synthRef.current = new abcjs.synth.CreateSynth();
+      }
 
-    // Small delay to ensure visual obj is set
-    await new Promise(resolve => setTimeout(resolve, 50));
-    play();
+      await synthRef.current.init({
+        visualObj: visualObj,
+        options: {
+          soundFontUrl: 'https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/',
+        },
+      });
+
+      await synthRef.current.prime();
+      synthRef.current.start();
+      setIsPlaying(true);
+
+      // Watch for end
+      const checkEnded = setInterval(() => {
+        if (synthRef.current && !synthRef.current.isRunning) {
+          setIsPlaying(false);
+          clearInterval(checkEnded);
+        }
+      }, 200);
+    } catch (err) {
+      console.error('Playback error:', err);
+    }
+
+    setIsLoading(false);
   };
 
   return (
@@ -192,19 +186,16 @@ function VersionOption({ setting, tune, isSelected, isSaved, isPlaying, onPlaySt
       className={`version-option ${isSelected ? 'selected' : ''} ${isSaved ? 'saved' : ''}`}
       onClick={onSelect}
     >
-      {/* Hidden audio control element */}
-      <div ref={audioControlRef} style={{ display: 'none' }} />
-
       <div className="version-option-header">
         <button
-          className={`version-play-btn ${localIsPlaying ? 'playing' : ''}`}
+          className={`version-play-btn ${isPlaying ? 'playing' : ''}`}
           onClick={handlePlay}
-          disabled={isLoading || !audioSupported}
-          title={localIsPlaying ? 'Stop preview' : 'Play preview'}
+          disabled={isLoading}
+          title={isPlaying ? 'Stop' : 'Play preview'}
         >
           {isLoading ? (
             <span className="version-play-spinner"></span>
-          ) : localIsPlaying ? (
+          ) : isPlaying ? (
             <svg viewBox="0 0 24 24" fill="currentColor">
               <rect x="6" y="4" width="4" height="16" />
               <rect x="14" y="4" width="4" height="16" />

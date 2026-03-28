@@ -15,18 +15,25 @@ export default function TuneCard({
       onClick={onClick}
     >
       <div className="tune-card-content">
-        <div className="tune-card-header">
+        <div className="tune-card-title-row">
           <h3 className="tune-card-name">{tune.name}</h3>
-          {showType && <span className="tune-card-type">{tune.type}</span>}
           {practiceIndicator === 'needs-practice' && (
             <span className="tune-card-practice-indicator" title="Needs practice">!</span>
           )}
         </div>
-        <div className="tune-card-meta">
-          <span className="tune-card-key">{tune.key}</span>
-          {tune.meter && <span className="tune-card-meter">{tune.meter}</span>}
-          {practiceText && (
-            <span className="tune-card-practice-text">{practiceText}</span>
+        <div className="tune-card-details-row">
+          <div className="tune-card-meta">
+            {showType && <span className="tune-card-type">{tune.type}</span>}
+            <span className="tune-card-key">{tune.key}</span>
+            {tune.meter && <span className="tune-card-meter">{tune.meter}</span>}
+            {practiceText && (
+              <span className="tune-card-practice-text">{practiceText}</span>
+            )}
+          </div>
+          {actions && (
+            <div className="tune-card-actions" onClick={(e) => e.stopPropagation()}>
+              {actions}
+            </div>
           )}
         </div>
         {tags && tags.length > 0 && (
@@ -40,11 +47,6 @@ export default function TuneCard({
           </div>
         )}
       </div>
-      {actions && (
-        <div className="tune-card-actions" onClick={(e) => e.stopPropagation()}>
-          {actions}
-        </div>
-      )}
     </div>
   );
 }
