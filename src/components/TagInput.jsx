@@ -49,6 +49,23 @@ export default function TagInput({ tags = [], allTags = [], onAddTag, onRemoveTa
 
   return (
     <div className="tag-input-container" ref={containerRef}>
+      {/* Show existing tags as quick-pick chips when there are unused tags available */}
+      {suggestions.length > 0 && (
+        <div className="tag-suggestions-inline">
+          <span className="tag-suggestions-label">Quick add:</span>
+          {suggestions.slice(0, 6).map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              className="tag-chip"
+              onClick={() => handleSuggestionClick(tag)}
+            >
+              + {tag}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="tag-list">
         {tags.map((tag) => (
           <span key={tag} className="tag">
@@ -74,7 +91,7 @@ export default function TagInput({ tags = [], allTags = [], onAddTag, onRemoveTa
           value={inputValue}
           onChange={handleInputChange}
           onFocus={() => setShowSuggestions(true)}
-          placeholder="Add a tag..."
+          placeholder="Add a new tag..."
           className="tag-input"
         />
         <button type="submit" className="tag-add-btn" disabled={!inputValue.trim()}>

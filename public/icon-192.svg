@@ -1,4 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
-  <rect width="192" height="192" fill="#646cff" rx="24"/>
-  <text x="96" y="120" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="white" text-anchor="middle">T</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bookGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#818cf8"/>
+      <stop offset="100%" style="stop-color:#6366f1"/>
+    </linearGradient>
+    <linearGradient id="pageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fef3c7"/>
+      <stop offset="100%" style="stop-color:#fde68a"/>
+    </linearGradient>
+  </defs>
+  <circle cx="96" cy="96" r="88" fill="url(#bookGrad)"/>
+  <path d="M40 50 L40 150 Q40 155 45 155 L150 155 Q155 155 155 150 L155 55 Q155 50 150 50 L100 50 L95 40 L50 40 Q40 40 40 50 Z" fill="url(#pageGrad)" stroke="#a78bfa" stroke-width="2"/>
+  <path d="M40 50 L40 150" stroke="#d4a574" stroke-width="3" stroke-linecap="round"/>
+  <line x1="55" y1="75" x2="140" y2="75" stroke="#6366f1" stroke-width="1.5" opacity="0.6"/>
+  <line x1="55" y1="85" x2="140" y2="85" stroke="#6366f1" stroke-width="1.5" opacity="0.6"/>
+  <line x1="55" y1="95" x2="140" y2="95" stroke="#6366f1" stroke-width="1.5" opacity="0.6"/>
+  <line x1="55" y1="105" x2="140" y2="105" stroke="#6366f1" stroke-width="1.5" opacity="0.6"/>
+  <line x1="55" y1="115" x2="140" y2="115" stroke="#6366f1" stroke-width="1.5" opacity="0.6"/>
+  <path d="M75 70 C65 75, 60 90, 70 100 C80 110, 90 105, 88 95 C86 85, 75 82, 72 90 C70 98, 78 102, 82 98 M75 100 L75 125 C75 132, 68 135, 65 130" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="105" cy="93" rx="7" ry="5" fill="#4f46e5" transform="rotate(-20 105 93)"/>
+  <line x1="111" y1="90" x2="111" y2="65" stroke="#4f46e5" stroke-width="2.5"/>
+  <path d="M111 65 Q118 68, 118 75 Q118 82, 111 78" fill="#4f46e5"/>
+  <ellipse cx="125" cy="103" rx="7" ry="5" fill="#4f46e5" transform="rotate(-20 125 103)"/>
+  <line x1="131" y1="100" x2="131" y2="75" stroke="#4f46e5" stroke-width="2.5"/>
+  <path d="M131 75 Q138 78, 138 85 Q138 92, 131 88" fill="#4f46e5"/>
+  <path d="M111 65 L131 75" stroke="#4f46e5" stroke-width="4"/>
+  <path d="M111 72 L131 82" stroke="#4f46e5" stroke-width="4"/>
 </svg>

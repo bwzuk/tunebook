@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLibrary } from '../contexts/LibraryContext';
 import TuneCard from '../components/TuneCard';
 import TagFilter from '../components/TagFilter';
+import EmptyLibrary from '../components/EmptyLibrary';
 import abcjs from 'abcjs';
 import { buildFullAbc } from '../utils/abcUtils';
 import './LibraryPage.css';
@@ -156,16 +157,17 @@ export default function LibraryPage() {
       </div>
 
       {filteredAndSortedTunes.length === 0 ? (
-        <div className="empty-library">
-          {tunes.length === 0 ? (
-            <>
-              <p>Your library is empty.</p>
-              <p>Search for tunes to add them to your collection.</p>
-            </>
-          ) : (
-            <p>No tunes match the current filters.</p>
-          )}
-        </div>
+        tunes.length === 0 ? (
+          <EmptyLibrary
+            message="Your library is empty"
+            submessage="Search for tunes to add them to your collection"
+          />
+        ) : (
+          <EmptyLibrary
+            message="No tunes match your filters"
+            submessage="Try adjusting your filter settings"
+          />
+        )
       ) : (
         <div className="tunes-list">
           {filteredAndSortedTunes.map((tune) => (
