@@ -1,0 +1,149 @@
+.auth-button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+}
+
+.auth-loading {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.auth-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.auth-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+}
+
+.auth-name {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.auth-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.auth-sync-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.auth-sync-btn:hover:not(:disabled) {
+  background: var(--primary-light);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.auth-sync-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-sync-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.auth-sync-btn svg.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.auth-signout-btn {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.auth-signout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.auth-signin-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: white;
+  border: 1px solid #dadce0;
+  border-radius: 0.5rem;
+  color: #3c4043;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 3rem;
+}
+
+.auth-signin-btn:hover {
+  background: #f8f9fa;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.google-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.auth-hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.auth-error {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--danger-color);
+  text-align: center;
+}

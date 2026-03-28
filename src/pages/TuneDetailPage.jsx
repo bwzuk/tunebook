@@ -4,12 +4,13 @@ import { useLibrary } from '../contexts/LibraryContext';
 import { useSets } from '../contexts/SetsContext';
 import AbcRenderer from '../components/AbcRenderer';
 import Modal from '../components/Modal';
+import TagInput from '../components/TagInput';
 import './TuneDetailPage.css';
 
 export default function TuneDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getTune, removeTune } = useLibrary();
+  const { getTune, removeTune, recordPractice, addTag, removeTag, allTags } = useLibrary();
   const { sets, addTuneToSet } = useSets();
   const [tune, setTune] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,6 +36,39 @@ export default function TuneDetailPage() {
   const handleAddToSet = async (setId) => {
     await addTuneToSet(setId, tune.id);
     setShowAddToSet(false);
+  };
+
+  const handlePractice = async () => {
+    const success = await recordPractice(tune.id);
+    if (success) {
+      // Refresh tune data
+      const updated = await getTune(tune.id);
+      setTune(updated);
+    }
+  };
+
+  const handleAddTag = async (tag) => {
+    const success = await addTag(tune.id, tag);
+    if (success) {
+      const updated = await getTune(tune.id);
+      setTune(updated);
+    }
+  };
+
+  const handleRemoveTag = async (tag) => {
+    const success = await removeTag(tune.id, tag);
+    if (success) {
+      const updated = await getTune(tune.id);
+      setTune(updated);
+    }
+  };
+
+  const formatLastPracticed = (timestamp) => {
+    if (!timestamp) return 'Never practiced';
+    const days = Math.floor((Date.now() - timestamp) / (1000 * 60 * 60 * 24));
+    if (days === 0) return 'Practiced today';
+    if (days === 1) return 'Practiced yesterday';
+    return `Practiced ${days} days ago`;
   };
 
   if (loading) {
@@ -72,9 +106,36 @@ export default function TuneDetailPage() {
           <span className="tune-key">{tune.key}</span>
           {tune.meter && <span className="tune-meter">{tune.meter}</span>}
         </div>
+        <div className="tune-practice-info">
+          <span className={`practice-status ${tune.lastPracticed ? '' : 'never'}`}>
+            {formatLastPracticed(tune.lastPracticed)}
+          </span>
+          {tune.practiceCount > 0 && (
+            <span className="practice-count">
+              ({tune.practiceCount} time{tune.practiceCount !== 1 ? 's' : ''})
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="tune-tags-section">
+        <h3>Tags</h3>
+        <TagInput
+          tags={tune.tags || []}
+          allTags={allTags}
+          onAddTag={handleAddTag}
+          onRemoveTag={handleRemoveTag}
+        />
       </div>
 
       <div className="tune-actions">
+        <button className="action-btn practice" onClick={handlePractice}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 12l2 2 4-4" />
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+          Mark as Practiced
+        </button>
         <button className="action-btn" onClick={() => setShowAddToSet(true)}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />

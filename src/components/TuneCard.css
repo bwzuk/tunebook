@@ -10,6 +10,10 @@
   min-height: 4rem;
 }
 
+.tune-card.needs-practice {
+  border-left: 3px solid var(--warning-color, #f59e0b);
+}
+
 .tune-card:hover {
   background: var(--bg-tertiary);
   border-color: var(--border-light);
@@ -54,6 +58,20 @@
   flex-shrink: 0;
 }
 
+.tune-card-practice-indicator {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--warning-color, #f59e0b);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 .tune-card-meta {
   display: flex;
   gap: 1rem;
@@ -65,15 +83,42 @@
   font-weight: 600;
 }
 
+.tune-card-practice-text {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.tune-card-tags {
+  display: flex;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tune-card-tag {
+  font-size: 0.6875rem;
+  padding: 0.125rem 0.375rem;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border-radius: 0.25rem;
+}
+
+.tune-card-tag-more {
+  font-size: 0.6875rem;
+  padding: 0.125rem 0.375rem;
+  color: var(--text-muted);
+}
+
 .tune-card-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.375rem;
   margin-left: 1rem;
 }
 
-.tune-card-actions button {
-  width: 2.5rem;
-  height: 2.5rem;
+.tune-card-actions button,
+.tune-action-btn {
+  width: 2.25rem;
+  height: 2.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,13 +130,58 @@
   transition: all 0.2s;
 }
 
-.tune-card-actions button:hover {
+.tune-action-btn.play {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.tune-action-btn.play:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.tune-action-btn.play.playing {
+  background: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.tune-action-btn.play:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tune-action-btn.practice {
+  color: var(--success-color, #22c55e);
+  border-color: var(--success-color, #22c55e);
+}
+
+.tune-action-btn.practice:hover {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.tune-action-btn.delete:hover {
   background: var(--bg-tertiary);
   color: var(--danger-color);
   border-color: var(--danger-color);
 }
 
-.tune-card-actions button svg {
-  width: 1.125rem;
-  height: 1.125rem;
+.tune-card-actions button svg,
+.tune-action-btn svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.action-spinner {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: action-spin 0.8s linear infinite;
+}
+
+@keyframes action-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

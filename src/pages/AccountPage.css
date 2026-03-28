@@ -1,0 +1,89 @@
+.account-page {
+  padding-bottom: 1.5rem;
+}
+
+.account-section {
+  margin-bottom: 1.5rem;
+}
+
+.account-section h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.stat-label {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.sync-status {
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+}
+
+.sync-message {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+}
+
+.sync-message.syncing {
+  color: var(--primary-color);
+}
+
+.sync-hint {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.about-info {
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+}
+
+.about-info p {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+.about-info p + p {
+  margin-top: 0.5rem;
+}
+
+.about-info .version {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}

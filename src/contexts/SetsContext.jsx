@@ -1,6 +1,8 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import * as db from '../db/database';
+import { auth } from '../firebase';
+import { pushSetToCloud, deleteSetFromCloud } from '../services/syncService';
 
 const SetsContext = createContext(null);
 
@@ -8,6 +10,15 @@ export function SetsProvider({ children }) {
   const [sets, setSets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const userRef = useRef(null);
+
+  // Track current user for sync operations
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      userRef.current = user;
+    });
+    return () => unsubscribe();
+  }, []);
 
   const loadSets = useCallback(async () => {
     try {
@@ -26,6 +37,19 @@ export function SetsProvider({ children }) {
     loadSets();
   }, [loadSets]);
 
+  const syncSetToCloud = useCallback(async (setId) => {
+    if (userRef.current) {
+      try {
+        const set = await db.getSetById(setId);
+        if (set) {
+          await pushSetToCloud(userRef.current.uid, set);
+        }
+      } catch (syncErr) {
+        console.error('Cloud sync failed:', syncErr);
+      }
+    }
+  }, []);
+
   const createSet = useCallback(async (name) => {
     try {
       const newSet = {
@@ -35,6 +59,16 @@ export function SetsProvider({ children }) {
         createdAt: Date.now(),
       };
       await db.saveSet(newSet);
+
+      // Sync to cloud
+      if (userRef.current) {
+        try {
+          await pushSetToCloud(userRef.current.uid, newSet);
+        } catch (syncErr) {
+          console.error('Cloud sync failed:', syncErr);
+        }
+      }
+
       await loadSets();
       return newSet;
     } catch (err) {
@@ -46,17 +80,28 @@ export function SetsProvider({ children }) {
   const updateSet = useCallback(async (set) => {
     try {
       await db.saveSet(set);
+      await syncSetToCloud(set.id);
       await loadSets();
       return true;
     } catch (err) {
       setError(err.message);
       return false;
     }
-  }, [loadSets]);
+  }, [loadSets, syncSetToCloud]);
 
   const removeSet = useCallback(async (id) => {
     try {
       await db.deleteSet(id);
+
+      // Sync deletion to cloud
+      if (userRef.current) {
+        try {
+          await deleteSetFromCloud(userRef.current.uid, id);
+        } catch (syncErr) {
+          console.error('Cloud sync failed:', syncErr);
+        }
+      }
+
       await loadSets();
       return true;
     } catch (err) {
@@ -77,35 +122,38 @@ export function SetsProvider({ children }) {
   const addTuneToSet = useCallback(async (setId, tuneId) => {
     try {
       await db.addTuneToSet(setId, tuneId);
+      await syncSetToCloud(setId);
       await loadSets();
       return true;
     } catch (err) {
       setError(err.message);
       return false;
     }
-  }, [loadSets]);
+  }, [loadSets, syncSetToCloud]);
 
   const removeTuneFromSet = useCallback(async (setId, tuneId) => {
     try {
       await db.removeTuneFromSet(setId, tuneId);
+      await syncSetToCloud(setId);
       await loadSets();
       return true;
     } catch (err) {
       setError(err.message);
       return false;
     }
-  }, [loadSets]);
+  }, [loadSets, syncSetToCloud]);
 
   const reorderTunes = useCallback(async (setId, tuneIds) => {
     try {
       await db.reorderTunesInSet(setId, tuneIds);
+      await syncSetToCloud(setId);
       await loadSets();
       return true;
     } catch (err) {
       setError(err.message);
       return false;
     }
-  }, [loadSets]);
+  }, [loadSets, syncSetToCloud]);
 
   const value = {
     sets,

@@ -1,0 +1,125 @@
+.tag-input-container {
+  position: relative;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--primary-light);
+  color: var(--primary-color);
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.tag-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.tag-remove:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--danger-color);
+}
+
+.tag-remove svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.tag-input-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tag-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  font-size: 0.9375rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 2.5rem;
+}
+
+.tag-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.tag-add-btn {
+  padding: 0.5rem 1rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  min-height: 2.5rem;
+}
+
+.tag-add-btn:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.tag-add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tag-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.25rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.tag-suggestion {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.tag-suggestion:hover {
+  background: var(--bg-secondary);
+}
+
+.tag-suggestion + .tag-suggestion {
+  border-top: 1px solid var(--border-color);
+}
